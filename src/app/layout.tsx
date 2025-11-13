@@ -1,6 +1,6 @@
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth";
@@ -8,9 +8,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { MainLayout } from "@/components/layout/main-layout";
 import { ClientFirebaseProvider } from "@/firebase/client-provider";
 
-const inter = Inter({ 
+const roboto = Roboto({ 
   subsets: ["latin"],
-  variable: '--font-body'
+  variable: '--font-body',
+  weight: ['400', '500', '700']
 });
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable}`}>
+      <body className={`${roboto.variable}`}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"

@@ -4,7 +4,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bold, Italic, Underline } from 'lucide-react';
 import { Button } from './ui/button';
-import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
@@ -63,12 +62,56 @@ const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorProps>(
 
     const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
       onChange((e.target as HTMLDivElement).innerHTML);
+      updateToolbar();
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      
+      const pastedHtml = e.clipboardData.getData('text/html');
+      const pastedText = e.clipboardData.getData('text/plain');
+      const selection = window.getSelection();
+
+      if (!selection || !selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+
+      if (pastedHtml) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(pastedHtml, 'text/html');
+        
+        doc.body.querySelectorAll('style, script').forEach(el => el.remove());
+        doc.body.querySelectorAll('*').forEach(el => {
+          el.removeAttribute('style');
+          el.removeAttribute('class');
+          el.removeAttribute('id');
+        });
+        
+        const fragment = document.createDocumentFragment();
+        while (doc.body.firstChild) {
+          fragment.appendChild(doc.body.firstChild);
+        }
+        
+        range.insertNode(fragment);
+
+      } else {
+        const textNode = document.createTextNode(pastedText);
+        range.insertNode(textNode);
+      }
+
+      selection.collapseToEnd();
+      
+      if (editorRef.current) {
+        onChange(editorRef.current.innerHTML);
+        updateToolbar();
+      }
     };
 
     return (
       <div className="rounded-md border border-input bg-background">
-        <div className="flex items-center justify-between border-b p-2">
-          <div className='flex items-center gap-1'>
+        <div className="flex items-center justify-between border-b p-2 flex-wrap gap-2">
+          <div className='flex items-center gap-1 flex-wrap'>
             <Button
               type='button'
               variant={isBold ? "secondary" : "outline"}
@@ -104,6 +147,7 @@ const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorProps>(
           contentEditable
           suppressContentEditableWarning={true}
           onInput={handleInput}
+          onPaste={handlePaste}
           onMouseUp={updateToolbar}
           onKeyUp={updateToolbar}
           className="prose-base md:prose-lg dark:prose-invert max-w-none font-body text-foreground/90 whitespace-pre-wrap min-h-[400px] resize-y p-4 focus-visible:outline-none"

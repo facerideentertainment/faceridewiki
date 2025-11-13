@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Suspense } from "react";
 import { useFirebase, useMemoFirebase } from "@/firebase/provider";
 import { useCollection } from "@/firebase/firestore/use-collection";
-import { collection, DocumentData, Timestamp } from "firebase/firestore";
+import { collection, DocumentData, Timestamp, query, where } from "firebase/firestore";
 import Image from "next/image";
+import { useAuth } from "@/lib/auth";
+import { UserDisplayName } from "@/components/ui/user-display-name";
 
 interface Article extends DocumentData {
   id: string;
@@ -19,6 +21,7 @@ interface Article extends DocumentData {
   authorDisplayName: string;
   createdAt: Timestamp;
   tags?: string[];
+  status?: 'published' | 'draft';
 }
 
 
@@ -26,10 +29,17 @@ function SearchResults() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q")?.toLowerCase() || "";
   const { firestore } = useFirebase();
+  const { user, loading: authLoading } = useAuth();
 
   const articlesCollection = useMemoFirebase(() => {
-    return collection(firestore, 'wiki_pages');
-  }, [firestore]);
+    const baseCollection = collection(firestore, 'wiki_pages');
+    
+    if (user?.role === 'Admin' || user?.role === 'Editor') {
+        return baseCollection;
+    } else {
+        return query(baseCollection, where('status', '==', 'published'));
+    }
+  }, [firestore, user]);
   
   const { data: articles, isLoading } = useCollection<Article>(articlesCollection);
 
@@ -58,9 +68,9 @@ function SearchResults() {
         {headingText}
       </h1>
       
-      {isLoading && <p>Loading entries...</p>}
+      {(isLoading || authLoading) && <p>Loading entries...</p>}
 
-      {!isLoading && filteredArticles && filteredArticles.length > 0 ? (
+      {!isLoading && !authLoading && filteredArticles && filteredArticles.length > 0 ? (
         <div className="grid gap-6">
           {filteredArticles.map((article) => {
             return (
@@ -74,7 +84,7 @@ function SearchResults() {
                     <div className="flex flex-col flex-grow">
                         <CardHeader>
                             <CardTitle className="font-headline">{article.title}</CardTitle>
-                            <CardDescription>By {article.authorDisplayName || '...'} on {article.createdAt?.toDate().toLocaleDateString()}</CardDescription>
+                            <CardDescription>By <UserDisplayName displayName={article.authorDisplayName} /> on {article.createdAt?.toDate().toLocaleDateString()}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <p className="line-clamp-2 text-muted-foreground">{stripHtml(article.content)}</p>
@@ -89,8 +99,8 @@ function SearchResults() {
             </Link>
           )})}
         </div>
-      ) : !isLoading && (
-        <p className="text-muted-foreground text-center py-8">{q ? "No entries found matching your search." : "No entries have been created yet."}</p>
+      ) : !isLoading && !authLoading && (
+        <p className="text-muted-foreground text-center py-8">{q ? "No entries found matching your search." : "No public entries are available yet."}</p>
       )}
     </div>
   );

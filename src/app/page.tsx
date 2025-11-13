@@ -95,7 +95,7 @@ export default function Home() {
                     </div>
                   )}
                   <CardHeader>
-                    <CardTitle className="font-headline text-lg leading-snug group-hover:text-primary transition-colors flex items-start gap-2">
+                    <CardTitle className="font-headline text-lg font-bold leading-snug group-hover:text-primary transition-colors flex items-start gap-2">
                       {!article.imageUrl && <FileText className="w-5 h-5 mt-1 text-muted-foreground flex-shrink-0" />}
                       <span className="flex-grow">{article.title}</span>
                     </CardTitle>
@@ -129,7 +129,7 @@ export default function Home() {
           <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
               <Bot className="w-8 h-8 text-primary" />
-              <CardTitle className="font-headline text-lg">AI Powered</CardTitle>
+              <CardTitle className="font-headline text-lg font-bold">AI Powered</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm">
@@ -140,7 +140,7 @@ export default function Home() {
            <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
               <Search className="w-8 h-8 text-primary" />
-              <CardTitle className="font-headline text-lg">Smart Search</CardTitle>
+              <CardTitle className="font-headline text-lg font-bold">Smart Search</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm">
@@ -151,7 +151,7 @@ export default function Home() {
            <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
               <Users className="w-8 h-8 text-primary" />
-              <CardTitle className="font-headline text-lg">Collaborative</CardTitle>
+              <CardTitle className="font-headline text-lg font-bold">Collaborative</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm">

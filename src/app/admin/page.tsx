@@ -4,8 +4,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Eye, Pencil, Trash2, Users, FileText, BarChart3, MoreHorizontal, ExternalLink } from "lucide-react";
-import { doc, collection, DocumentData } from 'firebase/firestore';
+import { Eye, Pencil, Trash2, Users, FileText, BarChart3, MoreHorizontal, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { doc, collection, DocumentData, updateDoc } from 'firebase/firestore';
 
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +36,7 @@ import {
 import { deleteDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { httpsCallable } from "firebase/functions";
 import { firebaseConfig } from "@/firebase/config";
+import { UserDisplayName } from "@/components/ui/user-display-name";
 
 interface Article extends DocumentData {
     id: string;
@@ -43,6 +44,7 @@ interface Article extends DocumentData {
     authorId: string;
     authorDisplayName: string;
     createdAt: any;
+    status: 'published' | 'draft';
 }
 
 export default function AdminPage() {
@@ -146,6 +148,24 @@ export default function AdminPage() {
         });
     }
   };
+  
+  const handleStatusChange = async (articleId: string, newStatus: 'published' | 'draft') => {
+    try {
+        const articleRef = doc(firestore, 'wiki_pages', articleId);
+        await updateDoc(articleRef, { status: newStatus });
+        toast({
+            title: "Entry Status Updated",
+            description: `The entry has been successfully set to ${newStatus}.`,
+        });
+    } catch (error) {
+        console.error("Error updating status:", error);
+        toast({
+            title: "Update Failed",
+            description: "Could not update the entry status. Please try again.",
+            variant: "destructive",
+        });
+    }
+  };
 
   const analyticsUrl = `https://console.firebase.google.com/u/0/project/${firebaseConfig.projectId}/analytics/dashboard`;
 
@@ -173,7 +193,7 @@ export default function AdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete User Document?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the database record for <span className="font-bold">{deleteUserTarget?.displayName || deleteUserTarget?.email}</span>. It will NOT delete their authentication account. This action cannot be undone.
+              This will permanently delete the database record for <span className="font-bold"><UserDisplayName displayName={deleteUserTarget?.displayName || deleteUserTarget?.email} /></span>. It will NOT delete their authentication account. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -242,7 +262,7 @@ export default function AdminPage() {
                 ) : (
                     users.map((u) => (
                     <TableRow key={u.uid}>
-                        <TableCell className="font-medium">{u.displayName || u.email.split('@')[0]}</TableCell>
+                        <TableCell className="font-medium"><UserDisplayName displayName={u.displayName || u.email.split('@')[0]} /></TableCell>
                         <TableCell>{u.email}</TableCell>
                         <TableCell>{u.role}</TableCell>
                         <TableCell className="text-right">
@@ -281,6 +301,7 @@ export default function AdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="hidden md:table-cell">Author</TableHead>
                     <TableHead className="hidden md:table-cell">Creation Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -288,7 +309,7 @@ export default function AdminPage() {
                 </TableHeader>
                 <TableBody>
                   {(articlesLoading || !articles) ? (
-                     <TableRow><TableCell colSpan={4} className="text-center">Loading entries...</TableCell></TableRow>
+                     <TableRow><TableCell colSpan={5} className="text-center">Loading entries...</TableCell></TableRow>
                   ) : (
                     articles.map((article) => {
                         const canDelete = user.role === 'Admin' || (user.role === 'Editor' && article.authorId === user.uid);
@@ -298,25 +319,31 @@ export default function AdminPage() {
                         return (
                         <TableRow key={article.id}>
                         <TableCell className="font-medium">{article.title}</TableCell>
-                        <TableCell className="hidden md:table-cell">{article.authorDisplayName || '...'}</TableCell>
+                        <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${article.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{article.status}</span></TableCell>
+                        <TableCell className="hidden md:table-cell"><UserDisplayName displayName={article.authorDisplayName} /></TableCell>
                         <TableCell className="hidden md:table-cell">{creationDate}</TableCell>
                         <TableCell className="text-right space-x-1">
-                            <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/article/${article.id}`}><Eye className="h-4 w-4" /></Link>
-                            </Button>
-                            <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/article/${article.id}/edit`}><Pencil className="h-4 w-4" /></Link>
-                            </Button>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => setDeleteTarget({id: article.id, title: article.title})} 
-                                className="text-destructive hover:text-destructive"
-                                disabled={!canDelete}
-                                title={canDelete ? "Delete entry" : "You do not have permission to delete this"}
-                            >
-                            <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild><Link href={`/article/${article.id}`}><Eye className="mr-2 h-4 w-4" />View</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href={`/article/${article.id}/edit`}><Pencil className="mr-2 h-4 w-4" />Edit</Link></DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => handleStatusChange(article.id, 'published')} disabled={article.status === 'published'}><CheckCircle className="mr-2 h-4 w-4 text-green-500" />Publish</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(article.id, 'draft')} disabled={article.status === 'draft'}><XCircle className="mr-2 h-4 w-4 text-yellow-500" />Unpublish</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setDeleteTarget({id: article.id, title: article.title})} className="text-destructive focus:bg-destructive/10 focus:text-destructive" disabled={!canDelete}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </TableCell>
                         </TableRow>
                     )})
@@ -329,5 +356,3 @@ export default function AdminPage() {
     </>
   );
 }
-
-    

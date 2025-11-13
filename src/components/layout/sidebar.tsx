@@ -23,6 +23,7 @@ import { associates } from "@/lib/associates";
 import { useFirebase, useMemoFirebase } from "@/firebase/provider";
 import { useCollection } from "@/firebase/firestore/use-collection";
 import { collection, DocumentData } from "firebase/firestore";
+import { UserDisplayName } from "@/components/ui/user-display-name";
 
 interface WikiArticle extends DocumentData {
   title: string;
@@ -61,14 +62,14 @@ function AssociateSidebarSection() {
             <SidebarMenu>
                 {associates.map(associate => (
                     <SidebarMenuItem key={associate.id}>
-                        <SidebarMenuButton asChild size="sm" isActive={pathname === `/associates/${associate.id}`} onClick={handleClick} className="h-auto py-1.5">
+                        <SidebarMenuButton asChild size="sm" isActive={pathname === `/associates/${associate.id}`} onClick={handleClick} className="h-auto py-1.5 hover:bg-muted rounded-md">
                             <Link href={`/associates/${associate.id}`} className="flex items-center justify-start w-full">
                                 <Image 
                                     src={associate.logo} 
                                     alt={`${associate.name} logo`} 
                                     width={32} 
                                     height={32} 
-                                    className="rounded-full flex-shrink-0 border-2 border-border mr-2"
+                                    className="rounded-full flex-shrink-0 border-2 border-border mr-1"
                                     unoptimized
                                 />
                                 <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis font-semibold text-sm">{associate.name}</span>
@@ -183,7 +184,9 @@ export function AppSidebar() {
                 <SidebarSeparator className="my-2"/>
                 <div>
                     <p className="font-semibold text-foreground">Signed in as</p>
-                    <p className="text-muted-foreground truncate">{user.displayName || user.email.split('@')[0]}</p>
+                    <p className="text-muted-foreground truncate">
+                         <UserDisplayName displayName={user.displayName || user.email.split('@')[0]} />
+                    </p>
                     <p className="text-muted-foreground">Role: {user.role}</p>
                 </div>
             </div>
@@ -221,7 +224,7 @@ export function AppSidebar() {
         ) : user ? (
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start font-semibold">
+                    <SidebarMenuButton onClick={handleLogout} className="w-full justify-start font-semibold hover:bg-muted rounded-md">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                     </SidebarMenuButton>

@@ -14,6 +14,7 @@ import { doc, DocumentData, Timestamp } from "firebase/firestore";
 import { PageProps } from "@/types";
 import { ArticleEditor } from "@/components/article-editor";
 import { isToday, format, formatDistanceToNow } from 'date-fns';
+import { UserDisplayName } from "@/components/ui/user-display-name";
 
 interface Article extends DocumentData {
   id: string;
@@ -83,13 +84,13 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
         )}
       </div>
       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6 flex-wrap">
-        <span>By {article.authorDisplayName || 'Unknown Author'}</span>
+        <span>By <UserDisplayName displayName={article.authorDisplayName} /></span>
         <span>|</span>
         <span>Created: {formatTimestamp(article.createdAt)}</span>
         {hasBeenEdited && (
             <>
                 <span>|</span>
-                <span>Last edited by {article.lastEditorDisplayName} {formatTimestamp(article.updatedAt)}</span>
+                <span>Last edited by <UserDisplayName displayName={article.lastEditorDisplayName} /> {formatTimestamp(article.updatedAt)}</span>
             </>
         )}
       </div>

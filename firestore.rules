@@ -1,48 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isSignedIn() {
-      return request.auth != null;
+    // By default, deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function getRole(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.get('role', 'Viewer');
-    }
-
-    function isAdmin() {
-      return isSignedIn() && getRole(request.auth.uid) == 'Admin';
-    }
-
-    function isEditor() {
-      let role = getRole(request.auth.uid);
-      return isSignedIn() && (role == 'Editor' || role == 'Admin');
-    }
-
+    // Allow users to read their own user document
     match /users/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isAdmin();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isAdmin();
+      allow read: if request.auth.uid == userId;
+      // Allow admins to write to any user document (for role changes)
+      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
-    match /wiki_pages/{wikiEntryId} {
-      allow get, list: if true;
-      // Allow create if the user is the author
-      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      // Allow update if the user is the author or an editor
-      allow update: if isSignedIn() && (resource.data.authorId == request.auth.uid || isEditor());
-      allow delete: if isSignedIn() && (isOwner(resource.data.authorId) || isAdmin());
-    }
+    // Rules for wiki pages
+    match /wiki_pages/{pageId} {
+      // Allow read access to published articles for everyone
+      allow read: if resource.data.status == 'published' || 
+                   // Or if the user is an Admin or Editor
+                   (request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Editor']);
 
-    match /tags/{tagId} {
-      allow get, list: if true;
-      allow write: if isEditor();
+      // Allow write access (create, update, delete) for Admins and Editors
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Editor'];
     }
   }
 }
