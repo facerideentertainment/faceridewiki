@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, Shield, HelpCircle, FileQuestion, Megaphone, BookCopy, LogOut } from "lucide-react";
+import { PlusCircle, Shield, HelpCircle, FileQuestion, Megaphone, FileSearch, LogOut } from "lucide-react";
 import Image from "next/image";
 
 import { useAuth } from "@/lib/auth";
@@ -125,13 +125,13 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline tracking-wider text-base"
+                    className="font-headline font-semibold text-base"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
                     >
                     <Link href="/search">
-                        <BookCopy />
+                        <FileSearch />
                         <span>Explore Entries</span>
                     </Link>
                     </SidebarMenuButton>
@@ -141,7 +141,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline tracking-wider text-base"
+                    className="font-headline font-semibold text-base"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
@@ -158,7 +158,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline tracking-wider text-base"
+                    className="font-headline font-semibold text-base"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
