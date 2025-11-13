@@ -124,10 +124,11 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                     <SidebarMenuButton
                     asChild
-                    size="lg"
+                    size="default"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
+                    className="font-medium"
                     >
                     <Link href="/search">
                         <FileSearch />
@@ -139,10 +140,11 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                     <SidebarMenuButton
                     asChild
-                    size="lg"
+                    size="default"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
+                    className="font-medium"
                     >
                     <Link href="/article/new">
                         <PlusCircle />
@@ -155,10 +157,11 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                 <SidebarMenuButton
                     asChild
-                    size="lg"
+                    size="default"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
+                    className="font-medium"
                 >
                     <Link href="/admin">
                     <Shield />
