@@ -184,17 +184,17 @@ export function AppSidebar() {
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/help'} onClick={handleClick}>
-                        <Link href="/help"><HelpCircle className="mr-2 h-4 w-4" /> Help & Support</Link>
+                        <Link href="/help"><HelpCircle className="mr-1.5 h-4 w-4" /> Help & Support</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
                     <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/guidelines'} onClick={handleClick}>
-                        <Link href="/guidelines"><FileQuestion className="mr-2 h-4 w-4" /> Guidelines</Link>
+                        <Link href="/guidelines"><FileQuestion className="mr-1.5 h-4 w-4" /> Guidelines</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
                     <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/about'} onClick={handleClick}>
-                        <Link href="/about"><Megaphone className="mr-2 h-4 w-4" /> About</Link>
+                        <Link href="/about"><Megaphone className="mr-1.5 h-4 w-4" /> About</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -225,3 +225,4 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
+
