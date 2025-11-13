@@ -104,10 +104,15 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="h-16 flex items-center justify-center p-4 border-b">
-        <Link href="/" className="flex items-center justify-center" onClick={handleClick}>
-             <div className="font-headline text-lg tracking-wider text-center">
-                FACE RIDE<br/>ENTERTAINMENT
-            </div>
+        <Link href="/" onClick={handleClick}>
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/studio-3687522943-485ca.firebasestorage.app/o/facerideentertainment%20(1)-modified.png?alt=media&token=0cf7814b-356e-4541-b320-bfbd0be1d07a"
+            alt="Face Ride Entertainment Logo"
+            width={140}
+            height={40}
+            className="dark:invert"
+            priority
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent className="p-0 no-scrollbar">
