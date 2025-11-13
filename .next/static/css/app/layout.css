@@ -802,15 +802,6 @@ video {
     --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 222.2 84% 4.9%;
   }
  
   .dark {
@@ -832,7 +823,7 @@ video {
     --muted: 0 0% 25%;
     --muted-foreground: 0 0% 60%;
  
-    --accent: 0 0% 15%;
+    --accent: 0 0% 22%;
     --accent-foreground: 0 0% 98%;
  
     --destructive: 0 84% 60%;
@@ -841,15 +832,6 @@ video {
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 217 91% 60%;
-    
-    --sidebar-background: 0 0% 16.5%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 22%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 217 91% 60%;
   }
   * {
   border-color: hsl(var(--border));
@@ -1309,7 +1291,7 @@ video {
   margin-bottom: 0;
 }
 .prose {
-  font-family: var(--font-body);
+  font-family: Inter;
   font-family: sans-serif;
 }
 .prose-base {
@@ -2476,10 +2458,10 @@ video {
   vertical-align: middle;
 }
 .font-body {
-  font-family: var(--font-body), sans-serif;
+  font-family: Inter, sans-serif;
 }
 .font-headline {
-  font-family: var(--font-body), sans-serif;
+  font-family: Inter, sans-serif;
 }
 .font-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -4315,6 +4297,7 @@ video {
 [data-side=right] .\[\[data-side\=right\]_\&\]\:cursor-e-resize {
   cursor: e-resize;
 }
+
 
 
 
