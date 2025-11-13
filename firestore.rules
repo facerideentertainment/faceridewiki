@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.get('role', 'Viewer');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getRole(request.auth.uid) == 'Admin';
+    }
+
+    function isEditor() {
+      let role = getRole(request.auth.uid);
+      return isSignedIn() && (role == 'Editor' || role == 'Admin');
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    match /wiki_pages/{wikiEntryId} {
+      allow get, list: if true;
+      // Allow create if the user is the author
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      // Allow update if the user is the author or an editor
+      allow update: if isSignedIn() && (resource.data.authorId == request.auth.uid || isEditor());
+      allow delete: if isSignedIn() && (isOwner(resource.data.authorId) || isAdmin());
+    }
+
+    match /tags/{tagId} {
+      allow get, list: if true;
+      allow write: if isEditor();
+    }
+  }
+}

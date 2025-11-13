@@ -1,0 +1,17 @@
+{
+  "version": "2",
+  "mcpServers": {
+    "firebase": {
+      "command": "./node_modules/.bin/firebase",
+      "args": [
+        "experimental:mcp"
+      ],
+      "env": {
+        "JAVA_HOME": "/nix/store/8drvwqmcxh2rvasgr7visxrgfjxnd3an-openjdk-11.0.19+7/lib/openjdk"
+      }
+    }
+  },
+  "enabledTools": {
+    "firebase": []
+  }
+}

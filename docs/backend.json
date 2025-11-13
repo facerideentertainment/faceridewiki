@@ -1,0 +1,237 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user within the Face Ride Entertainment Wiki application.",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique identifier for the User entity, matching Firebase Auth UID."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's display name."
+        },
+        "photoURL": {
+            "type": "string",
+            "description": "URL of the user's profile picture.",
+            "format": "uri"
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role (Viewer, Editor, Admin).",
+          "enum": ["Viewer", "Editor", "Admin"]
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "role"
+      ]
+    },
+    "WikiEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WikiEntry",
+      "type": "object",
+      "description": "Represents a wiki entry in the Face Ride Entertainment Wiki application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WikiEntry entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the wiki entry."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the wiki entry, stored in Markdown format."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to the User who created the wiki entry. (Relationship: User 1:N WikiEntry)"
+        },
+        "authorDisplayName": {
+            "type": "string",
+            "description": "The display name of the author, denormalized for direct use."
+        },
+        "authorPhotoURL": {
+            "type": "string",
+            "description": "The photo URL of the author, denormalized for direct use.",
+            "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time when the wiki entry was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Date and time when the wiki entry was last updated.",
+          "format": "date-time"
+        },
+        "imageUrl": {
+            "type": "string",
+            "description": "URL for the wiki entry's header image.",
+            "format": "uri"
+        },
+        "tagIds": {
+          "type": "array",
+          "description": "References to Tags associated with the wiki entry. (Relationship: Tag N:N WikiEntry)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lastEditorId": {
+          "type": "string",
+          "description": "Reference to the User who last edited the wiki entry."
+        },
+        "lastEditorDisplayName": {
+          "type": "string",
+          "description": "The display name of the last editor, denormalized for direct use."
+        },
+        "lastEditorPhotoURL": {
+          "type": "string",
+          "description": "The photo URL of the last editor, denormalized for direct use.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "authorId",
+        "authorDisplayName",
+        "createdAt"
+      ]
+    },
+    "Tag": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Tag",
+      "type": "object",
+      "description": "Represents a tag that can be associated with wiki entries.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Tag entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the tag."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Associate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Associate",
+      "type": "object",
+      "description": "Represents an associate of Face Ride Entertainment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Associate entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the associate."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the associate."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL for the associate's logo.",
+          "format": "uri"
+        }
+      },
+      "required": ["id", "name", "description", "logoUrl"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. User documents are private to the user for reads, but admins can list all users. Includes a 'role' field for application logic and security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/wiki_pages/{wikiEntryId}",
+        "definition": {
+          "entityName": "WikiEntry",
+          "schema": {
+            "$ref": "#/backend/entities/WikiEntry"
+          },
+          "description": "Stores wiki entries. Includes denormalized 'authorId' for authorization independence.",
+          "params": [
+            {
+              "name": "wikiEntryId",
+              "description": "The unique identifier for the wiki entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tags/{tagId}",
+        "definition": {
+          "entityName": "Tag",
+          "schema": {
+            "$ref": "#/backend/entities/Tag"
+          },
+          "description": "Stores tags associated with wiki entries.",
+          "params": [
+            {
+              "name": "tagId",
+              "description": "The unique identifier for the tag."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/associates/{associateId}",
+        "definition": {
+          "entityName": "Associate",
+          "schema": {
+            "$ref": "#/backend/entities/Associate"
+          },
+          "description": "Stores information about Face Ride Entertainment associates.",
+          "params": [
+            {
+              "name": "associateId",
+              "description": "The unique identifier for the associate."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

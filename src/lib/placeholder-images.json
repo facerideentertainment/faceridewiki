@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A thrilling rollercoaster ride at dusk.",
+      "imageUrl": "https://images.unsplash.com/photo-1635338349195-fa196812bb8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyb2xsZXJjb2FzdGVyJTIwdGhlbWUtcGFya3xlbnwwfHx8fDE3NjIzMTU5MDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rollercoaster theme-park"
+    },
+    {
+      "id": "article1",
+      "description": "A futuristic ride concept.",
+      "imageUrl": "https://images.unsplash.com/photo-1758413467335-14127a0984e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmdXR1cmlzdGljJTIwcmlkZXxlbnwwfHx8fDE3NjIzMTU5MDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "futuristic ride"
+    },
+    {
+      "id": "article2",
+      "description": "Safety inspectors checking a ride.",
+      "imageUrl": "https://images.unsplash.com/photo-1622057655812-668d0c737144?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzYWZldHklMjBpbnNwZWN0aW9ufGVufDB8fHx8MTc2MjMxMTU5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "safety inspection"
+    },
+    {
+      "id": "article3",
+      "description": "Happy people on a water ride.",
+      "imageUrl": "https://images.unsplash.com/photo-1566913949032-e604de9ab7df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3YXRlciUyMHJpZGV8ZW58MHx8fHwxNzYyMzE1OTA1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "water ride"
+    }
+  ]
+}

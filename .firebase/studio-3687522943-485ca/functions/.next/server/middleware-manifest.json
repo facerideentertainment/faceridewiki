@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "middleware": {},
+  "functions": {
+    "/api/gemini/route": {
+      "files": [
+        "server/middleware-build-manifest.js",
+        "server/middleware-react-loadable-manifest.js",
+        "server/next-font-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "prerender-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/app/api/gemini/route.js"
+      ],
+      "name": "app/api/gemini/route",
+      "page": "/api/gemini/route",
+      "matchers": [
+        {
+          "regexp": "^/api/gemini$",
+          "originalSource": "/api/gemini"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "environments": {
+        "previewModeId": "b5ef575c49df36f104662b2a6874cbc7",
+        "previewModeSigningKey": "57903274448a947d105dff00f0278f5de9b76ce2cdff30db75a9aa9a3d10b11e",
+        "previewModeEncryptionKey": "45c84c0aebf5566f55d44d6695f774b43c23be456cfac75fb037da50d6c03935"
+      }
+    }
+  },
+  "sortedMiddleware": []
+}

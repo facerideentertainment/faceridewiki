@@ -1,0 +1,52 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": {
+      "source": "src/functions",
+      "runtime": "nodejs20"
+  },
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 10003
+    },
+    "functions": {
+      "host": "127.0.0.1",
+      "port": 10004
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 10005
+    },
+    "hub": {
+      "host": "127.0.0.1",
+      "port": 10001
+    },
+    "ui": {
+      "enabled": true,
+      "host": "127.0.0.1",
+      "port": 10002
+    },
+    "logging": {
+      "host": "127.0.0.1",
+      "port": 10006
+    }
+  },
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "apphosting": {
+          "backendId": "face-ride-entertainment-wiki"
+        }
+      }
+    ]
+  }
+}

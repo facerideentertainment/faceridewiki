@@ -1,0 +1,28 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions to check user authentication and roles
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Allow public read access for all files.
+    // This is useful for logos, user-generated content, etc.
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Restrict write access to only authenticated users for the "wiki-headers" path.
+    // This prevents unauthorized users from uploading files.
+    match /wiki-headers/{allPaths=**} {
+      allow write: if isSignedIn();
+    }
+
+    // Allow users to write to their own profile pictures path.
+    match /profile-pictures/{allPaths=**} {
+      allow write: if isSignedIn();
+    }
+  }
+}
