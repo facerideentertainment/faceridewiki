@@ -221,7 +221,7 @@ export function AppSidebar() {
         ) : user ? (
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start text-base font-headline tracking-wider h-11">
+                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                     </SidebarMenuButton>
