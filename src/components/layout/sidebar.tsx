@@ -120,7 +120,7 @@ export function AppSidebar() {
         <AssociateSidebarSection />
 
         <div className="px-4 py-2">
-            <SidebarMenu>
+            <SidebarMenu className="gap-0">
                 <SidebarMenuItem>
                     <SidebarMenuButton
                     asChild
