@@ -125,7 +125,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold text-base"
+                    className="font-headline font-semibold"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
@@ -141,7 +141,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold text-base"
+                    className="font-headline font-semibold"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
@@ -158,7 +158,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold text-base"
+                    className="font-headline font-semibold"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
@@ -196,18 +196,18 @@ export function AppSidebar() {
             <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Quick Links</p>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/help'} onClick={handleClick}>
-                        <Link href="/help"><HelpCircle className="h-4 w-4" /> Help & Support</Link>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/help'} onClick={handleClick}>
+                        <Link href="/help"><HelpCircle className="mr-2 h-4 w-4" /> Help & Support</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/guidelines'} onClick={handleClick}>
-                        <Link href="/guidelines"><FileQuestion className="h-4 w-4" /> Guidelines</Link>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/guidelines'} onClick={handleClick}>
+                        <Link href="/guidelines"><FileQuestion className="mr-2 h-4 w-4" /> Guidelines</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/about'} onClick={handleClick}>
-                        <Link href="/about"><Megaphone className="h-4 w-4" /> About</Link>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/about'} onClick={handleClick}>
+                        <Link href="/about"><Megaphone className="mr-2 h-4 w-4" /> About</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
