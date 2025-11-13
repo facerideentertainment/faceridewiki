@@ -1,6 +1,6 @@
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Inter_Display } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth";
@@ -11,6 +11,11 @@ import { ClientFirebaseProvider } from "@/firebase/client-provider";
 const inter = Inter({ 
   subsets: ["latin"],
   variable: '--font-body'
+});
+
+const interDisplay = Inter_Display({
+  subsets: ['latin'],
+  variable: '--font-headline',
 });
 
 export const metadata: Metadata = {
@@ -25,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable}`}>
+      <body className={`${inter.variable} ${interDisplay.variable}`}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"

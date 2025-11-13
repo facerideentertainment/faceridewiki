@@ -57,7 +57,7 @@ function AssociateSidebarSection() {
 
     return (
         <div className="p-4">
-            <p className="font-bold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Associates</p>
+            <p className="font-bold mb-2 text-muted-foreground text-xs uppercase tracking-wider px-2">Associates</p>
             <SidebarMenu>
                 {associates.map(associate => (
                     <SidebarMenuItem key={associate.id}>
@@ -196,17 +196,17 @@ export function AppSidebar() {
             <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Quick Links</p>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/help'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/help'} onClick={handleClick}>
                         <Link href="/help"><HelpCircle className="mr-2 h-4 w-4" /> Help & Support</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/guidelines'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/guidelines'} onClick={handleClick}>
                         <Link href="/guidelines"><FileQuestion className="mr-2 h-4 w-4" /> Guidelines</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground" isActive={pathname === '/about'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/about'} onClick={handleClick}>
                         <Link href="/about"><Megaphone className="mr-2 h-4 w-4" /> About</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
