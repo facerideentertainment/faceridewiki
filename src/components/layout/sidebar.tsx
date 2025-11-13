@@ -68,7 +68,7 @@ function AssociateSidebarSection() {
                                     alt={`${associate.name} logo`} 
                                     width={32} 
                                     height={32} 
-                                    className="rounded-full flex-shrink-0 border-2 border-border mr-3"
+                                    className="rounded-full flex-shrink-0 border-2 border-border mr-2"
                                     unoptimized
                                 />
                                 <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis font-semibold text-sm">{associate.name}</span>
