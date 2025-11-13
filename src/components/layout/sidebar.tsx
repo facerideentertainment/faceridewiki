@@ -57,7 +57,7 @@ function AssociateSidebarSection() {
 
     return (
         <div className="p-4">
-            <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Associates</p>
+            <p className="font-bold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Associates</p>
             <SidebarMenu>
                 {associates.map(associate => (
                     <SidebarMenuItem key={associate.id}>
@@ -66,8 +66,8 @@ function AssociateSidebarSection() {
                                 <Image 
                                     src={associate.logo} 
                                     alt={`${associate.name} logo`} 
-                                    width={24} 
-                                    height={24} 
+                                    width={28} 
+                                    height={28} 
                                     className="rounded-full flex-shrink-0 border-2 border-border mr-3"
                                     unoptimized
                                 />
@@ -221,7 +221,7 @@ export function AppSidebar() {
         ) : user ? (
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start">
+                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start font-semibold">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                     </SidebarMenuButton>
