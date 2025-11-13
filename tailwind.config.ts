@@ -11,7 +11,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
-        headline: ['var(--font-headline)', 'Inter Display', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

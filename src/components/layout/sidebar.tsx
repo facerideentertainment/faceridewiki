@@ -125,7 +125,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold"
+                    className="font-semibold"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
@@ -141,7 +141,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold"
+                    className="font-semibold"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
@@ -158,7 +158,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-headline font-semibold"
+                    className="font-semibold"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
@@ -193,7 +193,7 @@ export function AppSidebar() {
 
         <div className="p-4 text-sm">
             <SidebarSeparator className="my-2"/>
-            <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Quick Links</p>
+            <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-wider px-2">Quick Links</p>
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/help'} onClick={handleClick}>
@@ -229,7 +229,7 @@ export function AppSidebar() {
             </SidebarMenu>
         ) : (
             <div className="p-2">
-                <Button asChild className="w-full h-11 text-base font-headline tracking-wider">
+                <Button asChild className="w-full h-11 text-base font-semibold tracking-wider">
                     <Link href="/login" onClick={handleClick}>Login / Sign Up</Link>
                 </Button>
             </div>
