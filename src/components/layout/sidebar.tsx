@@ -108,8 +108,8 @@ export function AppSidebar() {
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3687522943-485ca.firebasestorage.app/o/facerideentertainment%20(1)-modified.png?alt=media&token=0cf7814b-356e-4541-b320-bfbd0be1d07a"
             alt="Face Ride Entertainment Logo"
-            width={140}
-            height={40}
+            width={120}
+            height={34}
             className="dark:invert"
             priority
           />
@@ -181,7 +181,7 @@ export function AppSidebar() {
         ) : user && (
             <div className="p-4 text-sm">
                 <SidebarSeparator className="my-2"/>
-                <div className="px-2">
+                <div>
                     <p className="font-semibold text-foreground">Signed in as</p>
                     <p className="text-muted-foreground truncate">{user.displayName || user.email.split('@')[0]}</p>
                     <p className="text-muted-foreground">Role: {user.role}</p>
