@@ -61,7 +61,7 @@ function AssociateSidebarSection() {
             <SidebarMenu>
                 {associates.map(associate => (
                     <SidebarMenuItem key={associate.id}>
-                        <SidebarMenuButton asChild isActive={pathname === `/associates/${associate.id}`} onClick={handleClick}>
+                        <SidebarMenuButton asChild size="sm" isActive={pathname === `/associates/${associate.id}`} onClick={handleClick} className="h-auto py-1.5">
                             <Link href={`/associates/${associate.id}`} className="flex items-center justify-start w-full">
                                 <Image 
                                     src={associate.logo} 
@@ -124,6 +124,8 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                     <SidebarMenuButton
                     asChild
+                    size="lg"
+                    className="font-headline tracking-wider text-base"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
@@ -138,6 +140,8 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                     <SidebarMenuButton
                     asChild
+                    size="lg"
+                    className="font-headline tracking-wider text-base"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
@@ -153,6 +157,8 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                 <SidebarMenuButton
                     asChild
+                    size="lg"
+                    className="font-headline tracking-wider text-base"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
@@ -175,9 +181,9 @@ export function AppSidebar() {
         ) : user && (
             <div className="p-4 text-sm">
                 <SidebarSeparator className="my-2"/>
-                <p className="font-semibold text-muted-foreground">Signed in as</p>
-                <p className="text-foreground truncate">{user.displayName || user.email.split('@')[0]}</p>
-                <p className="text-muted-foreground">Role: {user.role}</p>
+                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest px-2 mb-2">Signed in as</p>
+                <p className="text-foreground truncate px-2">{user.displayName || user.email.split('@')[0]}</p>
+                <p className="text-muted-foreground px-2">Role: {user.role}</p>
             </div>
         )}
         
@@ -185,7 +191,7 @@ export function AppSidebar() {
 
         <div className="p-4 text-sm">
             <SidebarSeparator className="my-2"/>
-            <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-wider px-2">Quick Links</p>
+            <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-widest px-2">Quick Links</p>
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/help'} onClick={handleClick}>
@@ -213,7 +219,7 @@ export function AppSidebar() {
         ) : user ? (
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start">
+                    <SidebarMenuButton variant="ghost" onClick={handleLogout} className="w-full justify-start text-base font-headline tracking-wider h-11">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                     </SidebarMenuButton>
@@ -221,7 +227,7 @@ export function AppSidebar() {
             </SidebarMenu>
         ) : (
             <div className="p-2">
-                <Button asChild className="w-full">
+                <Button asChild className="w-full h-11 text-base font-headline tracking-wider">
                     <Link href="/login" onClick={handleClick}>Login / Sign Up</Link>
                 </Button>
             </div>
