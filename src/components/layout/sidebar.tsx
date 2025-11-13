@@ -71,7 +71,7 @@ function AssociateSidebarSection() {
                                     className="rounded-full flex-shrink-0 border-2 border-border mr-3"
                                     unoptimized
                                 />
-                                <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis">{associate.name}</span>
+                                <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis font-semibold text-sm">{associate.name}</span>
                                 <span className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5 ml-auto flex-shrink-0">
                                     {getAssociateArticleCount(associate.name)}
                                 </span>
