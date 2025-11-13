@@ -125,7 +125,6 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-semibold"
                     isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
@@ -141,7 +140,6 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-semibold"
                     isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
@@ -158,7 +156,6 @@ export function AppSidebar() {
                 <SidebarMenuButton
                     asChild
                     size="lg"
-                    className="font-semibold"
                     isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
