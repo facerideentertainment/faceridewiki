@@ -181,9 +181,11 @@ export function AppSidebar() {
         ) : user && (
             <div className="p-4 text-sm">
                 <SidebarSeparator className="my-2"/>
-                <p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest px-2 mb-2">Signed in as</p>
-                <p className="text-foreground truncate px-2">{user.displayName || user.email.split('@')[0]}</p>
-                <p className="text-muted-foreground px-2">Role: {user.role}</p>
+                <div className="px-2">
+                    <p className="font-semibold text-foreground">Signed in as</p>
+                    <p className="text-muted-foreground truncate">{user.displayName || user.email.split('@')[0]}</p>
+                    <p className="text-muted-foreground">Role: {user.role}</p>
+                </div>
             </div>
         )}
         
