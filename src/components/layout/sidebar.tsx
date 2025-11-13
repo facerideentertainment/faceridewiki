@@ -66,8 +66,8 @@ function AssociateSidebarSection() {
                                 <Image 
                                     src={associate.logo} 
                                     alt={`${associate.name} logo`} 
-                                    width={28} 
-                                    height={28} 
+                                    width={32} 
+                                    height={32} 
                                     className="rounded-full flex-shrink-0 border-2 border-border mr-3"
                                     unoptimized
                                 />
