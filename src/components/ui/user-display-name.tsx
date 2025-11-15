@@ -12,9 +12,9 @@ export function UserDisplayName({ displayName, className }: UserDisplayNameProps
   const isDev = name.toLowerCase() === 'maxplasss';
   
   return (
-    <div className={`inline-flex items-center gap-1.5 ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 ${className}`}>
       <span>{name}</span>
       {isDev && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">Dev</Badge>}
-    </div>
+    </span>
   );
 }

@@ -2,10 +2,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Eye, Pencil, Trash2, Users, FileText, BarChart3, MoreHorizontal, ExternalLink, CheckCircle, XCircle } from "lucide-react";
-import { doc, collection, DocumentData, updateDoc } from 'firebase/firestore';
+import { Eye, Pencil, Trash2, Users, FileText, BarChart3, MoreHorizontal, ExternalLink, ShieldQuestion } from "lucide-react";
+import { doc, collection, DocumentData } from 'firebase/firestore';
 
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,17 +44,17 @@ interface Article extends DocumentData {
     authorId: string;
     authorDisplayName: string;
     createdAt: any;
-    status: 'published' | 'draft';
 }
 
 export default function AdminPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, forceRefresh } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const { firestore, functions } = useFirebase();
 
   const [deleteTarget, setDeleteTarget] = useState<{id: string, title: string} | null>(null);
   const [deleteUserTarget, setDeleteUserTarget] = useState<User | null>(null);
+  const [isSuperAdminFlow, setIsSuperAdminFlow] = useState(false);
 
   const usersCollection = useMemoFirebase(() => {
     if (user?.role === 'Admin') {
@@ -68,17 +68,56 @@ export default function AdminPage() {
   const wikiPagesCollection = useMemoFirebase(() => collection(firestore, 'wiki_pages'), [firestore]);
   const { data: articles, isLoading: articlesLoading } = useCollection<Article>(wikiPagesCollection);
 
+  const handleBecomeAdmin = useCallback(async () => {
+    setIsSuperAdminFlow(true);
+    const makeAdmin = httpsCallable(functions, 'makeFirstUserAdmin');
+    try {
+      await makeAdmin();
+      toast({
+        title: "Congratulations!",
+        description: "You are now an administrator. Refreshing your session...",
+      });
+      await forceRefresh(); // Force a refresh of the user token and profile
+    } catch (error: any) {
+      console.error("Error becoming admin:", error);
+      toast({
+        title: "An Error Occurred",
+        description: error.message || "Could not make you an admin. Please check the logs.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSuperAdminFlow(false);
+    }
+  }, [functions, toast, forceRefresh]);
+
   useEffect(() => {
     if (loading) return;
-    if (!user || user.role !== 'Admin') {
-      router.push('/');
+    if (!user) {
+      router.push('/'); // Redirect if not logged in at all
     }
   }, [user, loading, router]);
   
-  if (loading || !user || user.role !== 'Admin') {
+  if (loading || !user) {
     return (
       <div className="flex justify-center items-center h-full">
-        <p>Loading or Access Denied...</p>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  // Render a special page if the user is not an Admin yet
+  if (user.role !== 'Admin') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center">
+        <ShieldQuestion className="w-16 h-16 mb-4 text-muted-foreground" />
+        <h1 className="text-3xl font-headline font-bold">Become the First Administrator</h1>
+        <p className="mt-2 max-w-md text-muted-foreground">
+          This application currently has no administrators. If you are the first user, you can claim administrative privileges.
+        </p>
+        <Button onClick={handleBecomeAdmin} disabled={isSuperAdminFlow} className="mt-6">
+          {isSuperAdminFlow ? 'Becoming Admin...' : 'Become the First Admin'}
+        </Button>
+        <p className="mt-4 text-sm text-muted-foreground">This action can only be performed once.</p>
       </div>
     );
   }
@@ -149,24 +188,6 @@ export default function AdminPage() {
     }
   };
   
-  const handleStatusChange = async (articleId: string, newStatus: 'published' | 'draft') => {
-    try {
-        const articleRef = doc(firestore, 'wiki_pages', articleId);
-        await updateDoc(articleRef, { status: newStatus });
-        toast({
-            title: "Entry Status Updated",
-            description: `The entry has been successfully set to ${newStatus}.`,
-        });
-    } catch (error) {
-        console.error("Error updating status:", error);
-        toast({
-            title: "Update Failed",
-            description: "Could not update the entry status. Please try again.",
-            variant: "destructive",
-        });
-    }
-  };
-
   const analyticsUrl = `https://console.firebase.google.com/u/0/project/${firebaseConfig.projectId}/analytics/dashboard`;
 
 
@@ -301,7 +322,6 @@ export default function AdminPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead className="hidden md:table-cell">Author</TableHead>
                     <TableHead className="hidden md:table-cell">Creation Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -309,7 +329,7 @@ export default function AdminPage() {
                 </TableHeader>
                 <TableBody>
                   {(articlesLoading || !articles) ? (
-                     <TableRow><TableCell colSpan={5} className="text-center">Loading entries...</TableCell></TableRow>
+                     <TableRow><TableCell colSpan={4} className="text-center">Loading entries...</TableCell></TableRow>
                   ) : (
                     articles.map((article) => {
                         const canDelete = user.role === 'Admin' || (user.role === 'Editor' && article.authorId === user.uid);
@@ -319,7 +339,6 @@ export default function AdminPage() {
                         return (
                         <TableRow key={article.id}>
                         <TableCell className="font-medium">{article.title}</TableCell>
-                        <TableCell><span className={`px-2 py-1 rounded-full text-xs font-medium ${article.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{article.status}</span></TableCell>
                         <TableCell className="hidden md:table-cell"><UserDisplayName displayName={article.authorDisplayName} /></TableCell>
                         <TableCell className="hidden md:table-cell">{creationDate}</TableCell>
                         <TableCell className="text-right space-x-1">
@@ -334,9 +353,6 @@ export default function AdminPage() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild><Link href={`/article/${article.id}`}><Eye className="mr-2 h-4 w-4" />View</Link></DropdownMenuItem>
                                 <DropdownMenuItem asChild><Link href={`/article/${article.id}/edit`}><Pencil className="mr-2 h-4 w-4" />Edit</Link></DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => handleStatusChange(article.id, 'published')} disabled={article.status === 'published'}><CheckCircle className="mr-2 h-4 w-4 text-green-500" />Publish</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleStatusChange(article.id, 'draft')} disabled={article.status === 'draft'}><XCircle className="mr-2 h-4 w-4 text-yellow-500" />Unpublish</DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => setDeleteTarget({id: article.id, title: article.title})} className="text-destructive focus:bg-destructive/10 focus:text-destructive" disabled={!canDelete}>
                                     <Trash2 className="mr-2 h-4 w-4" />

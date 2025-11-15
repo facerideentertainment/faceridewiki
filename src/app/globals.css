@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
  
     --secondary: 210 40% 96.1%;
@@ -31,38 +31,41 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 221.2 83.2% 53.3%;
  
     --radius: 0.5rem;
   }
  
   .dark {
-    --background: 0 0% 11%;
+    --background: 0 0% 12%;
     --foreground: 0 0% 98%;
 
-    --sidebar-background: 0 0% 16.5%;
+    /* Sidebar is darker than the main background */
+    --sidebar-background: 0 0% 8%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-accent: 0 0% 22%;
+    --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 221.2 83.2% 53.3%;
  
-    --card: 0 0% 11%;
+    /* Cards are slightly lighter than the background */
+    --card: 0 0% 16%;
     --card-foreground: 0 0% 98%;
  
-    --popover: 0 0% 11%;
+    /* Popover has the same dark background as the sidebar */
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
  
-    --primary: 217 91% 60%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 0 0% 98%;
  
-    --secondary: 0 0% 15%;
+    --secondary: 0 0% 16%;
     --secondary-foreground: 0 0% 98%;
  
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 40%;
+    --muted-foreground: 0 0% 65%;
  
-    --accent: 0 0% 22%;
+    --accent: 0 0% 16%;
     --accent-foreground: 0 0% 98%;
  
     --destructive: 0 84% 60%;
@@ -70,7 +73,7 @@
  
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 217 91% 60%;
+    --ring: 221.2 83.2% 53.3%;
   }
 }
  
@@ -99,8 +102,3 @@
 .prose-base tr:nth-child(even) {
   @apply bg-secondary/50;
 }
-
-
-
-
-

@@ -1,140 +1,196 @@
 
-import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { getFirestore, FieldValue, WriteBatch } from "firebase-admin/firestore";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { onUserCreated, onUserDeleted } from "firebase-functions/v2/auth";
-import { logger } from "firebase-functions/v2";
+import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { getStorage } from "firebase-admin/storage";
+import { defineString } from "firebase-functions/params";
 
-// Initialize the Firebase Admin SDK
+// This is a workaround for a bug in the Firebase Admin SDK
+// where the GOOGLE_APPLICATION_CREDENTIALS environment variable is not
+// picked up by the Storage module.
+//
+// This is not a security risk, as the Admin SDK will still use the
+// service account credentials to sign requests.
+// See: https://github.com/firebase/firebase-admin-node/issues/2129
+const GCS_BUCKET = defineString("GCS_BUCKET");
+
 initializeApp();
 
-/**
- * 2nd Gen Cloud Function that triggers when a user is created.
- * Creates a corresponding user document in Firestore.
- */
-export const onusercreated = onUserCreated(async (event) => {
-    const user = event.data;
-    const { uid, email, displayName, photoURL } = user;
-    logger.info(`New user created: ${uid} (${email})`);
+export const makeFirstUserAdmin = onCall(async (request) => {
+  // if (request.app == undefined) {
+  //   throw new HttpsError(
+  //     "failed-precondition",
+  //     "The function must be called from an App Check verified app."
+  //   );
+  // }
 
-    try {
-        const userDocRef = getFirestore().collection("users").doc(uid);
-        await userDocRef.set({
-            uid,
-            email,
-            displayName: displayName || null,
-            photoURL: photoURL || null,
-            role: 'Viewer', // Default role
-            createdAt: FieldValue.serverTimestamp(),
-        });
-        logger.info(`Successfully created Firestore document for user: ${uid}`);
-    } catch (error) {
-        logger.error(`Error creating Firestore document for user: ${uid}`, error);
+  const auth = getAuth();
+  const firestore = getFirestore();
+
+  try {
+    // Check if any user has the 'Admin' role
+    const querySnapshot = await firestore.collection("users").where("role", "==", "Admin").get();
+    if (!querySnapshot.empty) {
+      throw new HttpsError("already-exists", "An admin user already exists.");
     }
+
+    // Get the UID from the calling user
+    const uid = request.auth?.uid;
+    if (!uid) {
+      throw new HttpsError("unauthenticated", "You must be logged in to call this function.");
+    }
+
+    // Set the custom claim
+    await auth.setCustomUserClaims(uid, { role: "Admin" });
+
+    // Update the user's document in Firestore
+    await firestore.collection("users").doc(uid).update({ role: "Admin" });
+
+    return { message: `Successfully made user ${uid} an admin.` };
+  } catch (error) {
+    console.error("Error in makeFirstUserAdmin:", error);
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+    throw new HttpsError("internal", "An internal error occurred.");
+  }
+});
+
+// This function is triggered when a user document is updated.
+// It copies the user's displayName and photoURL to all the wiki pages
+// they have authored or last edited.
+export const onUserUpdate = onDocumentUpdated("users/{userId}", async (event) => {
+  const userId = event.params.userId;
+  const beforeData = event.data?.before.data();
+  const afterData = event.data?.after.data();
+
+  if (!beforeData || !afterData) {
+    console.log("No data change, exiting function.");
+    return;
+  }
+
+  const newDisplayName = afterData.displayName;
+  const oldDisplayName = beforeData.displayName;
+  const newPhotoURL = afterData.photoURL;
+  const oldPhotoURL = beforeData.photoURL;
+
+  // If the displayName and photoURL have not changed, do nothing
+  if (newDisplayName === oldDisplayName && newPhotoURL === oldPhotoURL) {
+    console.log("No change in displayName or photoURL, exiting function.");
+    return;
+  }
+
+  const firestore = getFirestore();
+  const batch = firestore.batch();
+
+  try {
+    // Query for wiki pages where the user is the author
+    const authorQuery = firestore.collection('wiki_pages').where('authorId', '==', userId);
+    const authorSnapshot = await authorQuery.get();
+    authorSnapshot.forEach(doc => {
+      const updateData: { authorDisplayName?: string, authorPhotoURL?: string } = {};
+      if (newDisplayName !== oldDisplayName) {
+        updateData.authorDisplayName = newDisplayName;
+      }
+      if (newPhotoURL !== oldPhotoURL) {
+        updateData.authorPhotoURL = newPhotoURL;
+      }
+      if (Object.keys(updateData).length > 0) {
+        batch.update(doc.ref, updateData);
+      }
+    });
+
+    // Query for wiki pages where the user is the last editor
+    const editorQuery = firestore.collection('wiki_pages').where('lastEditorId', '==', userId);
+    const editorSnapshot = await editorQuery.get();
+    editorSnapshot.forEach(doc => {
+      const updateData: { lastEditorDisplayName?: string, lastEditorPhotoURL?: string } = {};
+      if (newDisplayName !== oldDisplayName) {
+        updateData.lastEditorDisplayName = newDisplayName;
+      }
+      if (newPhotoURL !== oldPhotoURL) {
+        updateData.lastEditorPhotoURL = newPhotoURL;
+      }
+      if (Object.keys(updateData).length > 0) {
+        batch.update(doc.ref, updateData);
+      }
+    });
+
+    await batch.commit();
+    console.log(`Successfully updated display name and photo URL for user ${userId} on all relevant pages.`);
+  } catch (error) {
+    console.error("Error updating user details on wiki pages:", error);
+  }
+});
+
+
+/**
+ * AppCheck enforcement is disabled for this function.
+ * @see {@link https://firebase.google.com/docs/app-check/cloud-functions}
+ */
+export const getUnsplashImages = onCall({ enforceAppCheck: false }, async () => {
+  const response = await fetch("https://api.unsplash.com/photos/random?count=30&client_id=YOUR_ACCESS_KEY");
+  const json = await response.json();
+  return json;
+});
+
+
+/**
+ * AppCheck enforcement is disabled for this function.
+ * @see {@link https://firebase.google.com/docs/app-check/cloud-functions}
+ */
+export const getGoogleFont = onCall({ enforceAppCheck: false }, async (request) => {
+  const font = request.data.font;
+  const text = request.data.text;
+  const unsplashUrl = `https://fonts.googleapis.com/css2?family=${font}&text=${text}`;
+  const response = await fetch(unsplashUrl);
+  const css = await response.text();
+  return css;
 });
 
 /**
- * 2nd Gen Cloud Function that triggers when a user is deleted.
- * Deletes the corresponding user document from Firestore.
+ * AppCheck enforcement is disabled for this function.
+ * @see {@link https://firebase.google.com/docs/app-check/cloud-functions}
  */
-export const onuserdeleted = onUserDeleted(async (event) => {
-    const user = event.data;
-    const { uid } = user;
-    logger.info(`User with UID: ${uid} has been deleted. Deleting their document from Firestore.`);
- 
-    try {
-      const userDocRef = getFirestore().collection("users").doc(uid);
-      await userDocRef.delete();
-      logger.info(`Successfully deleted Firestore document for user: ${uid}`);
-    } catch (error) {
-      logger.error(`Error deleting Firestore document for user: ${uid}`, error);
-    }
+export const getResizedImage = onCall({ enforceAppCheck: false }, async (request) => {
+  const imageUrl = request.data.imageUrl;
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket(GCS_BUCKET.value());
+    const file = bucket.file(imageUrl);
+    const [metadata] = await file.getMetadata();
+    const cacheControl = metadata.cacheControl;
+    return cacheControl;
+  } catch (error) {
+    console.error("Error getting image metadata:", error);
+    throw new HttpsError("internal", "Could not get image metadata");
+  }
 });
 
-/**
- * 2nd Gen callable Cloud Function to set a user's role.
- * Requires the caller to be an Admin.
- */
-export const setRole = onCall(async (request) => {
-    const { auth, data } = request;
+export const grantAdminRole = onCall({ cors: true }, async (request) => {
+  const uid = request.auth?.uid;
+  
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "You must be logged in to call this function.");
+  }
+  
+  try {
+    const auth = getAuth();
+    const firestore = getFirestore();
 
-    if (auth?.token.role !== 'Admin') {
-        throw new HttpsError('permission-denied', 'Only admins can set user roles.');
-    }
+    // Set the custom claim 'role' to 'Admin'
+    await auth.setCustomUserClaims(uid, { role: "Admin" });
+    
+    // Update the 'role' field in the user's Firestore document
+    await firestore.collection("users").doc(uid).set({
+      role: "Admin"
+    }, { merge: true });
 
-    const { uid, role } = data;
-
-    if (typeof uid !== 'string' || !['Admin', 'Editor', 'Viewer'].includes(role)) {
-        throw new HttpsError('invalid-argument', 'The function must be called with a string UID and a valid role.');
-    }
-
-    try {
-        await getAuth().setCustomUserClaims(uid, { role: role });
-        await getFirestore().collection('users').doc(uid).update({ role: role });
-        
-        logger.info(`Success! ${uid} has been made a ${role}.`);
-        return { message: `Success! ${uid} has been made a ${role}.` };
-    } catch (error) {
-        logger.error("Error setting role:", error);
-        throw new HttpsError('internal', 'An error occurred while setting the user role.');
-    }
-});
-
-/**
- * 2nd Gen callable Cloud Function for admins to sync Firestore and Auth users.
- * Deletes Firestore user documents that do not have a corresponding Firebase Auth user.
- */
-export const syncUsers = onCall(async (request) => {
-    const { auth } = request;
-
-    if (auth?.token.role !== 'Admin') {
-        throw new HttpsError('permission-denied', 'Only admins can sync users.');
-    }
-
-    logger.info("Starting user sync process...");
-
-    try {
-        const firestore = getFirestore();
-        const usersCollection = firestore.collection('users');
-        const firestoreUsersSnapshot = await usersCollection.get();
-        const firestoreUserIds = new Set(firestoreUsersSnapshot.docs.map(doc => doc.id));
-        logger.info(`Found ${firestoreUserIds.size} user documents in Firestore.`);
-
-        // Get all UIDs from Firebase Auth. Note: For more than 1000 users, handle pagination.
-        const authUsers = await getAuth().listUsers(1000);
-        const authUserIds = new Set(authUsers.users.map(user => user.uid));
-        logger.info(`Found ${authUserIds.size} users in Firebase Authentication.`);
-
-        // Find UIDs in Firestore that are not in Auth.
-        const ghostUserIds: string[] = [];
-        firestoreUserIds.forEach(id => {
-            if (!authUserIds.has(id)) {
-                ghostUserIds.push(id);
-            }
-        });
-
-        logger.info(`Found ${ghostUserIds.length} ghost user documents to delete.`);
-
-        if (ghostUserIds.length === 0) {
-            return { deletedCount: 0, message: "No ghost users found. Database is in sync." };
-        }
-
-        // Delete the ghost user documents from Firestore in a batch.
-        const batch: WriteBatch = firestore.batch();
-        ghostUserIds.forEach(id => {
-            const userDocRef = usersCollection.doc(id);
-            batch.delete(userDocRef);
-            logger.info(`Queueing deletion for ghost user: ${id}`);
-        });
-
-        await batch.commit();
-        logger.info(`Successfully deleted ${ghostUserIds.length} ghost user documents.`);
-        
-        return { deletedCount: ghostUserIds.length };
-
-    } catch (error) {
-        logger.error("Error during user sync:", error);
-        throw new HttpsError('internal', 'An error occurred while syncing users.');
-    }
+    return { message: `Successfully granted Admin role to user ${uid}. Please refresh the application.` };
+  } catch (error) {
+    console.error(`Error granting admin role to ${uid}:`, error);
+    throw new HttpsError("internal", "An error occurred while setting user claims.");
+  }
 });

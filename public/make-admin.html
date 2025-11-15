@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Provisioning Tool</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f9; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+        h1 { margin-bottom: 1.5rem; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #0056b3; }
+        #status { margin-top: 1.5rem; font-weight: bold; }
+        #userInfo { margin-top: 1rem; color: #555; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Provisioning Tool (Emulator Mode)</h1>
+        <div id="userInfo"></div>
+        <button id="loginBtn">Login with Google</button>
+        <button id="makeAdminBtn" style="display:none;">Make First User Admin</button>
+        <div id="status">Please log in to continue.</div>
+    </div>
+
+    <script type="module">
+        // --- Firebase v9 Modular SDK from CDN ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js";
+
+        // --- Your Firebase Config ---
+        const firebaseConfig = {
+            "projectId": "studio-3687522943-485ca",
+            "appId": "1:665741374140:web:232c352ddaef9241ce56b9",
+            "apiKey": "AIzaSyBA7Zkh7iARL6D81rLUgreNXDqGQn03WGc",
+            "authDomain": "studio-3687522943-485ca.firebaseapp.com",
+            "storageBucket": "studio-3687522943-485ca.firebasestorage.app",
+        };
+
+        // --- Initialize Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const functions = getFunctions(app);
+
+        // --- Connect to Emulators ---
+        // Note: The host for connectAuthEmulator must include the protocol (http://)
+        connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+        connectFunctionsEmulator(functions, "localhost", 5001);
+
+
+        // --- DOM Elements ---
+        const loginBtn = document.getElementById('loginBtn');
+        const makeAdminBtn = document.getElementById('makeAdminBtn');
+        const statusDiv = document.getElementById('status');
+        const userInfoDiv = document.getElementById('userInfo');
+
+        // --- Event Listeners ---
+        loginBtn.addEventListener('click', () => {
+            const provider = new GoogleAuthProvider();
+            signInWithRedirect(auth, provider);
+        });
+
+        makeAdminBtn.addEventListener('click', async () => {
+            statusDiv.textContent = 'Attempting to make you an admin...';
+            makeAdminBtn.disabled = true;
+            const makeFirstUserAdmin = httpsCallable(functions, 'makeFirstUserAdmin');
+            try {
+                const result = await makeFirstUserAdmin();
+                statusDiv.textContent = `SUCCESS: ${result.data.message}. You can now close this page.`;
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                makeAdminBtn.disabled = false; // Allow retry
+            }
+        });
+
+        // --- Handle Authentication State ---
+        const handleAuthRedirect = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result && result.user) {
+                    updateUIForUser(result.user);
+                }
+            } catch (error) {
+                statusDiv.textContent = `Login failed on redirect: ${error.message}`;
+            }
+        };
+        
+        const updateUIForUser = (user) => {
+            statusDiv.textContent = 'Login successful. You can now grant yourself admin rights.';
+            userInfoDiv.textContent = `Logged in as: ${user.email}`;
+            loginBtn.style.display = 'none';
+            makeAdminBtn.style.display = 'block';
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                updateUIForUser(user);
+            } else {
+                handleAuthRedirect();
+            }
+        });
+    </script>
+</body>
+</html>

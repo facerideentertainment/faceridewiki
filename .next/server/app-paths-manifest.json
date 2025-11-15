@@ -1,7 +1,5 @@
 {
-  "/article/[slug]/page": "app/article/[slug]/page.js",
-  "/search/page": "app/search/page.js",
-  "/article/[slug]/edit/page": "app/article/[slug]/edit/page.js",
-  "/associates/[slug]/page": "app/associates/[slug]/page.js",
-  "/page": "app/page.js"
+  "/admin/page": "app/admin/page.js",
+  "/page": "app/page.js",
+  "/search/page": "app/search/page.js"
 }

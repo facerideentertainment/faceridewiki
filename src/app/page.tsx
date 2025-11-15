@@ -32,12 +32,12 @@ interface Article extends DocumentData {
 
 export default function Home() {
   const { firestore } = useFirebase();
-  const { user } = useAuth();
+  const { user, loading: isAuthLoading } = useAuth();
   const articlesCollection = useMemoFirebase(() => 
-    query(collection(firestore, 'wiki_pages'), orderBy("createdAt", "desc"), limit(3)), 
-    [firestore]
+    isAuthLoading ? null : query(collection(firestore, 'wiki_pages'), orderBy("createdAt", "desc"), limit(3)), 
+    [firestore, isAuthLoading]
   );
-  const {data: articles, isLoading} = useCollection<Article>(articlesCollection);
+  const {data: articles, isLoading: isArticlesLoading} = useCollection<Article>(articlesCollection);
 
   const canEdit = user?.role === 'Admin' || user?.role === 'Editor';
 
@@ -54,7 +54,7 @@ export default function Home() {
           Welcome to the Face Ride Entertainment Wiki
         </h1>
         <p className="mt-2 text-muted-foreground">
-          You wanna know? You better be ready for the ride. This is the ultimate, comprehensive platform—we promise a long, messy, and satisfying cram session. Go ahead, eat the facts until you choke.
+          You wanna know? You better faceride, motherf-er*. This is the ultimate, comprehensive platform—we promise a long, messy, and satisfying cram session. Go ahead, eat the facts until you choke.
         </p>
         <div className="mt-6 flex gap-2">
           <Button asChild>
@@ -78,7 +78,7 @@ export default function Home() {
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading && <p>Loading entries...</p>}
+          {isArticlesLoading && <p>Loading entries...</p>}
           {articles?.map((article, index) => {
             return (
               <Link href={`/article/${article.id}`} key={article.id}>

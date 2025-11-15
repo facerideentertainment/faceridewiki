@@ -6,22 +6,29 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Allow users to read their own user document
+    // Allow users to read their own user document, and Admins to read any user document
     match /users/{userId} {
-      allow read: if request.auth.uid == userId;
-      // Allow admins to write to any user document (for role changes)
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      allow read: if request.auth.uid == userId || request.auth.token.role == 'Admin';
+      allow write: if request.auth.uid == userId || request.auth.token.role == 'Admin';
+    }
+
+    // Allow Admins to list users
+    match /users {
+      allow list: if request.auth.token.role == 'Admin';
     }
 
     // Rules for wiki pages
     match /wiki_pages/{pageId} {
-      // Allow read access to published articles for everyone
-      allow read: if resource.data.status == 'published' || 
-                   // Or if the user is an Admin or Editor
-                   (request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Editor']);
+      // Allow read access for everyone
+      allow read;
 
       // Allow write access (create, update, delete) for Admins and Editors
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['Admin', 'Editor'];
+      allow write: if request.auth != null && request.auth.token.role in ['Admin', 'Editor'];
+    }
+    
+    // Allow everyone to list wiki pages
+    match /wiki_pages {
+      allow list;
     }
   }
 }
