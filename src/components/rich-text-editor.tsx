@@ -68,7 +68,6 @@ const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorProps>(
     const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
       e.preventDefault();
       
-      const pastedHtml = e.clipboardData.getData('text/html');
       const pastedText = e.clipboardData.getData('text/plain');
       const selection = window.getSelection();
 
@@ -76,29 +75,9 @@ const RichTextEditor = React.forwardRef<HTMLDivElement, RichTextEditorProps>(
 
       const range = selection.getRangeAt(0);
       range.deleteContents();
-
-      if (pastedHtml) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(pastedHtml, 'text/html');
-        
-        doc.body.querySelectorAll('style, script').forEach(el => el.remove());
-        doc.body.querySelectorAll('*').forEach(el => {
-          el.removeAttribute('style');
-          el.removeAttribute('class');
-          el.removeAttribute('id');
-        });
-        
-        const fragment = document.createDocumentFragment();
-        while (doc.body.firstChild) {
-          fragment.appendChild(doc.body.firstChild);
-        }
-        
-        range.insertNode(fragment);
-
-      } else {
-        const textNode = document.createTextNode(pastedText);
-        range.insertNode(textNode);
-      }
+      
+      const textNode = document.createTextNode(pastedText);
+      range.insertNode(textNode);
 
       selection.collapseToEnd();
       

@@ -62,12 +62,12 @@ function AssociateSidebarSection() {
             <SidebarMenu>
                 {associates.map(associate => (
                     <SidebarMenuItem key={associate.id}>
-                        <SidebarMenuButton asChild size="sm" isActive={pathname === `/associates/${associate.id}`} onClick={handleClick} className="h-auto py-1.5 hover:bg-muted rounded-md">
+                        <SidebarMenuButton asChild size="sm" onClick={handleClick} className="h-auto py-1.5 hover:bg-muted rounded-md">
                             <Link href={`/associates/${associate.id}`} className="flex items-center justify-start w-full">
                                 <Image 
                                     src={associate.logo} 
                                     alt={`${associate.name} logo`} 
-                                    width={32} 
+                                    width={32}
                                     height={32} 
                                     className="rounded-full flex-shrink-0 border-2 border-border mr-1"
                                     unoptimized
@@ -126,7 +126,6 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="default"
-                    isActive={pathname === "/search"}
                     tooltip={{ children: "Explore Entries" }}
                     onClick={handleClick}
                     className="font-medium"
@@ -142,7 +141,6 @@ export function AppSidebar() {
                     <SidebarMenuButton
                     asChild
                     size="default"
-                    isActive={pathname === "/article/new"}
                     tooltip={{ children: "Create Entry" }}
                     onClick={handleClick}
                     className="font-medium"
@@ -159,7 +157,6 @@ export function AppSidebar() {
                 <SidebarMenuButton
                     asChild
                     size="default"
-                    isActive={pathname === "/admin"}
                     tooltip={{ children: "Admin" }}
                     onClick={handleClick}
                     className="font-medium"
@@ -199,17 +196,17 @@ export function AppSidebar() {
             <p className="font-semibold mb-2 text-muted-foreground text-xs uppercase tracking-wider px-2">Quick Links</p>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/help'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" onClick={handleClick}>
                         <Link href="/help"><HelpCircle className="mr-2 h-4 w-4" /> Help & Support</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/guidelines'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" onClick={handleClick}>
                         <Link href="/guidelines"><FileQuestion className="mr-2 h-4 w-4" /> Guidelines</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" isActive={pathname === '/about'} onClick={handleClick}>
+                    <SidebarMenuButton asChild size="sm" className="justify-start text-muted-foreground gap-1" onClick={handleClick}>
                         <Link href="/about"><Megaphone className="mr-2 h-4 w-4" /> About</Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
