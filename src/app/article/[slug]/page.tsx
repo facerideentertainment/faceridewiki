@@ -6,15 +6,16 @@ import Image from "next/image";
 import Link from 'next/link';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useFirebase, useMemoFirebase } from "@/firebase/provider";
 import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc, DocumentData, Timestamp } from "firebase/firestore";
+import { doc, DocumentData, Timestamp, updateDoc, increment } from "firebase/firestore";
 import { PageProps } from "@/types";
 import { ArticleEditor } from "@/components/article-editor";
 import { isToday, format, formatDistanceToNow } from 'date-fns';
 import { UserDisplayName } from "@/components/ui/user-display-name";
+import { useEffect, useRef } from "react";
 
 interface Article extends DocumentData {
   id: string;
@@ -22,10 +23,12 @@ interface Article extends DocumentData {
   content: string;
   imageUrl?: string;
   tags?: string[];
+  author: string;
   authorDisplayName: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
   lastEditorDisplayName?: string;
+  viewCount?: number;
 }
 
 export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
@@ -33,6 +36,7 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
   const { user } = useAuth();
   const router = useRouter();
   const { firestore } = useFirebase();
+  const viewIncrementedRef = useRef(false);
 
   if (slug === 'new') {
     return <ArticleEditor />;
@@ -40,6 +44,15 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
 
   const articleRef = useMemoFirebase(() => doc(firestore, 'wiki_pages', slug), [firestore, slug]);
   const {data: article, isLoading} = useDoc<Article>(articleRef);
+
+  useEffect(() => {
+    if (article && !viewIncrementedRef.current && user?.uid !== article.author) {
+      viewIncrementedRef.current = true;
+      updateDoc(articleRef, {
+        viewCount: increment(1)
+      });
+    }
+  }, [article, articleRef, user]);
 
   if (isLoading) {
     return <div>Loading entry...</div>
@@ -91,6 +104,15 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
             <>
                 <span>|</span>
                 <span>Last edited by <UserDisplayName displayName={article.lastEditorDisplayName} /> {formatTimestamp(article.updatedAt)}</span>
+            </>
+        )}
+        {article.viewCount && (
+            <>
+                <span>|</span>
+                <div className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    <span>{article.viewCount} views</span>
+                </div>
             </>
         )}
       </div>

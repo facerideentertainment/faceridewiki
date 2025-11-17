@@ -1,32 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // By default, deny all reads and writes
+
+    function hasChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys.hasOnly(keys) == false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Allow users to read their own user document, and Admins to read any user document
     match /users/{userId} {
       allow read: if request.auth.uid == userId || request.auth.token.role == 'Admin';
       allow write: if request.auth.uid == userId || request.auth.token.role == 'Admin';
     }
 
-    // Allow Admins to list users
     match /users {
       allow list: if request.auth.token.role == 'Admin';
     }
 
-    // Rules for wiki pages
     match /wiki_pages/{pageId} {
-      // Allow read access for everyone
       allow read;
-
-      // Allow write access (create, update, delete) for Admins and Editors
-      allow write: if request.auth != null && request.auth.token.role in ['Admin', 'Editor'];
+      allow create: if request.auth != null && request.auth.token.role in ['Admin', 'Editor'];
+      allow update: if request.auth != null && 
+                      request.auth.token.role in ['Admin', 'Editor'] &&
+                      hasChanges(['lastEditorId', 'lastEditorDisplayName', 'lastEditorPhotoURL', 'updatedAt']);
+      allow delete: if request.auth != null && request.auth.token.role in ['Admin', 'Editor'];
     }
     
-    // Allow everyone to list wiki pages
     match /wiki_pages {
       allow list;
     }

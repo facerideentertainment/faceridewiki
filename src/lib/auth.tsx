@@ -11,7 +11,7 @@ import {
   signInWithEmailAndPassword,
   getIdTokenResult,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,7 +29,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: Error | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (emailOrUsername: string, password: string) => Promise<void>;
   signup: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => void;
   updateUserProfile: (updates: { displayName?: string; photoURL?: string }) => Promise<void>;
@@ -81,12 +81,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [firestore]);
 
-  // Initial sync on user change (login/logout)
   useEffect(() => {
     syncUser(firebaseUser);
   }, [firebaseUser, syncUser]);
 
-  // Listen for realtime updates to the user document to re-sync claims
   useEffect(() => {
     if (!firebaseUser) return;
 
@@ -106,14 +104,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, [firebaseUser, firestore, syncUser, user]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (emailOrUsername: string, password: string) => {
+    let email = emailOrUsername;
+    if (!emailOrUsername.includes('@')) {
+      const usersRef = collection(firestore, 'users');
+      const q = query(usersRef, where('displayName', '==', emailOrUsername));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        throw new Error('User not found');
+      }
+      
+      const userData = querySnapshot.docs[0].data();
+      email = userData.email;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error("Firebase Login Error:", error);
       throw error;
     }
-  }, [auth]);
+  }, [auth, firestore]);
 
   const signup = useCallback(async (email: string, password: string, displayName: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);

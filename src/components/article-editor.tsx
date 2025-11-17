@@ -130,7 +130,7 @@ export function ArticleEditor({ article }: ArticleEditorProps) {
     },
   });
 
-  const canDelete = user && article && (user.role === 'Admin' || (user.role === 'Editor' && article.authorId === user.uid));
+  const canDelete = user && article && (user.role === 'Admin' || (user.role === 'Editor' && article.author === user.uid));
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -172,9 +172,29 @@ export function ArticleEditor({ article }: ArticleEditorProps) {
     
     setIsSubmitting(true);
     try {
+      const newTags = values.tags.split(',').map(tag => tag.trim());
+
+      if (article) {
+        const hasChanges =
+          article.title !== values.title ||
+          JSON.stringify(article.tags.sort()) !== JSON.stringify(newTags.sort()) ||
+          article.content !== values.content ||
+          article.imageUrl !== imgSrc;
+
+        if (!hasChanges) {
+          toast({
+            title: "No Changes Detected",
+            description: "The entry was not updated because no changes were made.",
+          });
+          setIsSubmitting(false);
+          router.push(`/article/${article.id}`);
+          return;
+        }
+      }
+
       const articleData: any = {
         ...values,
-        tags: values.tags.split(',').map(tag => tag.trim()),
+        tags: newTags,
         updatedAt: serverTimestamp(),
         imageUrl: imgSrc,
         lastEditorId: user.uid,
@@ -193,9 +213,10 @@ export function ArticleEditor({ article }: ArticleEditorProps) {
             ...articleData,
             id: newArticleRef.id,
             createdAt: serverTimestamp(),
-            authorId: user.uid,
+            author: user.uid,
             authorDisplayName: user.displayName || user.email,
             authorPhotoURL: user.photoURL || null,
+            viewCount: 0,
         }, {});
 
         toast({ title: "Entry Created", description: `"${values.title}" has been created.` });

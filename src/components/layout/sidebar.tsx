@@ -120,6 +120,8 @@ export function AppSidebar() {
         
         <AssociateSidebarSection />
 
+        <SidebarSeparator className="my-2"/>
+
         <div className="px-4 py-2">
             <SidebarMenu className="gap-0">
                 <SidebarMenuItem>
@@ -130,7 +132,7 @@ export function AppSidebar() {
                     onClick={handleClick}
                     className="font-medium"
                     >
-                    <Link href="/search">
+                    <Link href="/explore">
                         <FileSearch />
                         <span>Explore Entries</span>
                     </Link>
@@ -170,6 +172,8 @@ export function AppSidebar() {
             )}
             </SidebarMenu>
         </div>
+
+        <SidebarSeparator className="my-2"/>
         
         {loading ? (
             <div className="p-4 space-y-2">

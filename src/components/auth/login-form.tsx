@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
+  emailOrUsername: z.string().min(1, { message: "Email or Username is required." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
@@ -38,7 +38,7 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      emailOrUsername: "",
       password: "",
     },
   });
@@ -52,12 +52,12 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      await login(values.email, values.password);
+      await login(values.emailOrUsername, values.password);
       // The useEffect will handle the redirect
     } catch (error: any) {
         let description = "There was a problem with your request.";
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-            description = "Incorrect email or password. Please try again.";
+        if (error.message === 'User not found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+            description = "Incorrect email/username or password. Please try again.";
         }
         toast({
             title: "Login Failed",
@@ -91,12 +91,12 @@ export function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="email"
+              name="emailOrUsername"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email or Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="user@example.com" {...field} />
+                    <Input placeholder="user@example.com or your_username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -8,6 +8,7 @@ import {
   FileText,
   Search,
   Users,
+  Eye,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -28,6 +29,7 @@ interface Article extends DocumentData {
   authorDisplayName: string;
   authorId: string;
   createdAt: Timestamp;
+  viewCount?: number;
 }
 
 export default function Home() {
@@ -58,7 +60,7 @@ export default function Home() {
         </p>
         <div className="mt-6 flex gap-2">
           <Button asChild>
-            <Link href="/search">Explore Entries</Link>
+            <Link href="/explore">Explore Entries</Link>
           </Button>
           {canEdit && (
             <Button variant="secondary" asChild>
@@ -72,7 +74,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-headline font-bold">Recent Entries</h2>
           <Button variant="link" asChild>
-            <Link href="/search">
+            <Link href="/explore">
               View All <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -112,8 +114,16 @@ export default function Home() {
                       ))}
                     </div>
                     <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t mt-auto">
-                      <span>Author: {article.authorDisplayName || article.authorId}</span>
-                      <span>{article.createdAt?.toDate().toLocaleDateString() ?? 'Date unavailable'}</span>
+                        <span>By: {article.authorDisplayName || article.authorId}</span>
+                        <div className="flex items-center gap-2">
+                            {article.viewCount !== undefined && (
+                                <div className="flex items-center gap-1">
+                                    <Eye className="w-4 h-4" />
+                                    <span>{article.viewCount}</span>
+                                </div>
+                            )}
+                            <span>{article.createdAt?.toDate().toLocaleDateString() ?? 'Date unavailable'}</span>
+                        </div>
                     </div>
                   </CardContent>
                 </Card>
