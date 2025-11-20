@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
 
 import { getAssociateById } from '@/lib/associates';
 import { useFirebase } from '@/firebase/provider';
@@ -16,13 +16,17 @@ import {
 } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { Eye, FileText } from 'lucide-react';
+import { UserDisplayName } from '@/components/ui/user-display-name';
 
-// Define the Article interface
-interface Article {
+interface Article extends DocumentData {
   id: string;
   title: string;
-  tags: string[];
+  content: string;
   imageUrl?: string;
+  tags?: string[];
+  viewCount?: number;
+  authorDisplayName: string;
 }
 
 export default function AssociatePage() {
@@ -32,7 +36,13 @@ export default function AssociatePage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const articlesCollection = useMemo(() => collection(firestore, 'wiki_pages'), [firestore]);
+  const stripHtml = (html: string) => {
+    if (typeof document !== 'undefined') {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return doc.body.textContent || "";
+    }
+    return html.replace(/<[^>]+>/g, '');
+  }
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -41,23 +51,15 @@ export default function AssociatePage() {
       try {
         const lowerCaseName = associate.name.toLowerCase();
         
-        // This query might not be efficient. Firestore doesn't support full-text search natively.
-        // For a production app, a dedicated search service like Algolia or Elasticsearch is recommended.
         const q = query(collection(firestore, "wiki_pages"));
         const querySnapshot = await getDocs(q);
         
         const fetchedArticles: Article[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          const article: Article = {
-            id: doc.id,
-            title: data.title,
-            tags: data.tags || [],
-            imageUrl: data.imageUrl,
-          };
-
-          const content = data.content.toLowerCase();
-          const title = data.title.toLowerCase();
+          
+          const content = (data.content || '').toLowerCase();
+          const title = (data.title || '').toLowerCase();
           const tags = (data.tags || []).map((t: string) => t.toLowerCase());
 
           if (
@@ -65,7 +67,7 @@ export default function AssociatePage() {
             title.includes(lowerCaseName) ||
             tags.includes(lowerCaseName)
           ) {
-            fetchedArticles.push(article);
+            fetchedArticles.push({ id: doc.id, ...data } as Article);
           }
         });
 
@@ -108,28 +110,46 @@ export default function AssociatePage() {
           {loading ? (
             <p>Loading articles...</p>
           ) : articles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {articles.map(article => (
-                <Link href={`/article/${article.id}`} key={article.id} className="flex">
-                  <Card className="hover:shadow-lg transition-shadow w-full flex flex-col group">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((article, index) => (
+                <Link href={`/article/${article.id}`} key={article.id}>
+                  <Card className="h-full hover:border-primary transition-colors group flex flex-col">
                     {article.imageUrl && (
-                        <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
-                            <Image
-                                src={article.imageUrl}
-                                alt={article.title}
-                                fill
-                                className="object-cover transition-transform group-hover:scale-105"
-                            />
-                        </div>
+                      <div className="relative aspect-video w-full overflow-hidden rounded-t-lg">
+                        <Image 
+                          src={article.imageUrl} 
+                          alt={article.title} 
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                          priority={index < 3}
+                        />
+                      </div>
                     )}
-                    <CardHeader className={!article.imageUrl ? 'flex-1' : ''}>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors">{article.title}</CardTitle>
+                    <CardHeader>
+                      <CardTitle className="font-headline text-lg font-bold leading-snug group-hover:text-primary transition-colors flex items-start gap-2">
+                        {!article.imageUrl && <FileText className="w-5 h-5 mt-1 text-muted-foreground flex-shrink-0" />}
+                        <span className="flex-grow">{article.title}</span>
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-grow flex flex-col justify-end">
+                    <CardContent className="space-y-4 flex-grow flex flex-col">
+                      <p className="text-muted-foreground text-sm line-clamp-3 flex-grow">
+                        {stripHtml(article.content).substring(0, 200)}...
+                      </p>
                       <div className="flex flex-wrap gap-2">
-                        {article.tags.map(tag => (
-                          <Badge key={tag} variant="secondary">{tag}</Badge>
+                        {(article.tags || []).map((tag) => (
+                          <Badge key={tag} variant="secondary">
+                            {tag}
+                          </Badge>
                         ))}
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t mt-auto">
+                          <div className="truncate">
+                            By <UserDisplayName displayName={article.authorDisplayName} /> on {article.createdAt?.toDate().toLocaleDateString() ?? '...'}
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <Eye className="w-3 h-3" />
+                              <span>{article.viewCount?.toLocaleString() ?? 0}</span>
+                          </div>
                       </div>
                     </CardContent>
                   </Card>

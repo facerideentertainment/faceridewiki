@@ -14,7 +14,7 @@ export function UserDisplayName({ displayName, className }: UserDisplayNameProps
   return (
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
       <span>{name}</span>
-      {isDev && <Badge variant="destructive" className="text-xs px-1.5 py-0.5">Dev</Badge>}
+      {isDev && <Badge variant="destructive" className="text-[10px] px-1 py-0">Dev</Badge>}
     </span>
   );
 }

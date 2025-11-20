@@ -10,12 +10,13 @@ import { Eye, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useFirebase, useMemoFirebase } from "@/firebase/provider";
 import { useDoc } from "@/firebase/firestore/use-doc";
-import { doc, DocumentData, Timestamp, updateDoc, increment } from "firebase/firestore";
+import { doc, DocumentData, Timestamp, increment } from "firebase/firestore";
 import { PageProps } from "@/types";
 import { ArticleEditor } from "@/components/article-editor";
 import { isToday, format, formatDistanceToNow } from 'date-fns';
 import { UserDisplayName } from "@/components/ui/user-display-name";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 interface Article extends DocumentData {
   id: string;
@@ -23,7 +24,6 @@ interface Article extends DocumentData {
   content: string;
   imageUrl?: string;
   tags?: string[];
-  author: string;
   authorDisplayName: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
@@ -36,7 +36,6 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
   const { user } = useAuth();
   const router = useRouter();
   const { firestore } = useFirebase();
-  const viewIncrementedRef = useRef(false);
 
   if (slug === 'new') {
     return <ArticleEditor />;
@@ -44,15 +43,16 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
 
   const articleRef = useMemoFirebase(() => doc(firestore, 'wiki_pages', slug), [firestore, slug]);
   const {data: article, isLoading} = useDoc<Article>(articleRef);
-
+  
   useEffect(() => {
-    if (article && !viewIncrementedRef.current && user?.uid !== article.author) {
-      viewIncrementedRef.current = true;
-      updateDoc(articleRef, {
-        viewCount: increment(1)
-      });
+    // Increment view count
+    if (articleRef) {
+        updateDocumentNonBlocking(articleRef, { viewCount: increment(1) }).catch(err => {
+            console.warn("Could not update view count. This might be due to permissions or the document not existing yet.");
+        });
     }
-  }, [article, articleRef, user]);
+  }, [articleRef]);
+
 
   if (isLoading) {
     return <div>Loading entry...</div>
@@ -106,13 +106,10 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
                 <span>Last edited by <UserDisplayName displayName={article.lastEditorDisplayName} /> {formatTimestamp(article.updatedAt)}</span>
             </>
         )}
-        {article.viewCount && (
+         {article.viewCount !== undefined && (
             <>
                 <span>|</span>
-                <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span>{article.viewCount} views</span>
-                </div>
+                <span className="flex items-center gap-1.5"><Eye className="h-4 w-4" /> {article.viewCount.toLocaleString()} views</span>
             </>
         )}
       </div>

@@ -5,10 +5,10 @@ import Link from "next/link";
 import {
   ArrowRight,
   Bot,
+  Eye,
   FileText,
   Search,
   Users,
-  Eye,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -19,6 +19,7 @@ import { useFirebase, useMemoFirebase } from "@/firebase/provider";
 import { useCollection } from "@/firebase/firestore/use-collection";
 import { collection, DocumentData, Timestamp, query, orderBy, limit } from "firebase/firestore";
 import { useAuth } from "@/lib/auth";
+import { UserDisplayName } from "@/components/ui/user-display-name";
 
 interface Article extends DocumentData {
   id: string;
@@ -60,7 +61,7 @@ export default function Home() {
         </p>
         <div className="mt-6 flex gap-2">
           <Button asChild>
-            <Link href="/explore">Explore Entries</Link>
+            <Link href="/search">Explore Entries</Link>
           </Button>
           {canEdit && (
             <Button variant="secondary" asChild>
@@ -74,7 +75,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-headline font-bold">Recent Entries</h2>
           <Button variant="link" asChild>
-            <Link href="/explore">
+            <Link href="/search">
               View All <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -113,16 +114,13 @@ export default function Home() {
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t mt-auto">
-                        <span>By: {article.authorDisplayName || article.authorId}</span>
-                        <div className="flex items-center gap-2">
-                            {article.viewCount !== undefined && (
-                                <div className="flex items-center gap-1">
-                                    <Eye className="w-4 h-4" />
-                                    <span>{article.viewCount}</span>
-                                </div>
-                            )}
-                            <span>{article.createdAt?.toDate().toLocaleDateString() ?? 'Date unavailable'}</span>
+                    <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t mt-auto gap-2">
+                        <div className="truncate">
+                           By <UserDisplayName displayName={article.authorDisplayName} /> on {article.createdAt?.toDate().toLocaleDateString() ?? '...'}
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <Eye className="w-3 h-3" />
+                            <span>{article.viewCount?.toLocaleString() ?? 0}</span>
                         </div>
                     </div>
                   </CardContent>

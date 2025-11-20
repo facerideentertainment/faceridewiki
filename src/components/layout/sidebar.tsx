@@ -120,8 +120,6 @@ export function AppSidebar() {
         
         <AssociateSidebarSection />
 
-        <SidebarSeparator className="my-2"/>
-
         <div className="px-4 py-2">
             <SidebarMenu className="gap-0">
                 <SidebarMenuItem>
@@ -132,7 +130,7 @@ export function AppSidebar() {
                     onClick={handleClick}
                     className="font-medium"
                     >
-                    <Link href="/explore">
+                    <Link href="/search">
                         <FileSearch />
                         <span>Explore Entries</span>
                     </Link>
@@ -172,8 +170,6 @@ export function AppSidebar() {
             )}
             </SidebarMenu>
         </div>
-
-        <SidebarSeparator className="my-2"/>
         
         {loading ? (
             <div className="p-4 space-y-2">
@@ -186,7 +182,7 @@ export function AppSidebar() {
                 <div>
                     <p className="font-semibold text-foreground">Signed in as</p>
                     <p className="text-muted-foreground truncate">
-                         <UserDisplayName displayName={user.displayName || user.email.split('@')[0]} />
+                         <UserDisplayName displayName={user.displayName || (user.email ? user.email.split('@')[0] : '')} />
                     </p>
                     <p className="text-muted-foreground">Role: {user.role}</p>
                 </div>
