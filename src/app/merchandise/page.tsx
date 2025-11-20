@@ -5,7 +5,6 @@ import Image from "next/image";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -18,7 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ShoppingBag, Tag } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ShoppingBag, Tag, X } from "lucide-react";
 
 const merchandiseItems = [
   {
@@ -81,46 +85,60 @@ export default function MerchandisePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {merchandiseItems.map((item) => (
-          <Card key={item.id} className="flex flex-col">
-            <CardHeader className="p-0">
-              <div className="relative aspect-square w-full overflow-hidden rounded-t-lg">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={item.imageHint}
-                />
+          <Dialog key={item.id}>
+            <Card className="flex flex-col">
+              <CardHeader className="p-0">
+                <DialogTrigger asChild>
+                  <div className="relative aspect-square w-full overflow-hidden rounded-t-lg cursor-pointer">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={item.imageHint}
+                    />
+                  </div>
+                </DialogTrigger>
+              </CardHeader>
+              <CardContent className="p-4 flex-grow">
+                <CardTitle className="text-xl font-headline">{item.name}</CardTitle>
+                <div className="flex items-center gap-2 mt-2 text-lg font-semibold text-primary">
+                  <Tag className="w-5 h-5" />
+                  <span>{item.price}</span>
+                </div>
+              </CardContent>
+              <CardFooter className="p-4 pt-0 flex flex-col sm:flex-row gap-2">
+                {item.sizes.length > 0 && (
+                  <Select>
+                    <SelectTrigger className="w-full sm:w-[120px]">
+                      <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {item.sizes.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                <Button className="w-full flex-grow">
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Add to Cart
+                </Button>
+              </CardFooter>
+            </Card>
+            <DialogContent className="p-0 border-0 max-w-2xl bg-transparent shadow-none">
+              <div className="relative aspect-square">
+                 <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    className="object-contain rounded-lg"
+                  />
               </div>
-            </CardHeader>
-            <CardContent className="p-4 flex-grow">
-              <CardTitle className="text-xl font-headline">{item.name}</CardTitle>
-              <div className="flex items-center gap-2 mt-2 text-lg font-semibold text-primary">
-                <Tag className="w-5 h-5" />
-                <span>{item.price}</span>
-              </div>
-            </CardContent>
-            <CardFooter className="p-4 pt-0 flex flex-col sm:flex-row gap-2">
-              {item.sizes.length > 0 && (
-                <Select>
-                  <SelectTrigger className="w-full sm:w-[120px]">
-                    <SelectValue placeholder="Size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {item.sizes.map((size) => (
-                      <SelectItem key={size} value={size}>
-                        {size}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              <Button className="w-full flex-grow">
-                <ShoppingBag className="mr-2 h-4 w-4" />
-                Add to Cart
-              </Button>
-            </CardFooter>
-          </Card>
+            </DialogContent>
+          </Dialog>
         ))}
       </div>
     </div>
