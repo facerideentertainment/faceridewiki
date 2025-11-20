@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlusCircle, Shield, HelpCircle, FileQuestion, Megaphone, FileSearch, LogOut } from "lucide-react";
+import { PlusCircle, Shield, HelpCircle, FileQuestion, Megaphone, FileSearch, LogOut, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 import { useAuth } from "@/lib/auth";
@@ -69,7 +69,7 @@ function AssociateSidebarSection() {
                                     alt={`${associate.name} logo`} 
                                     width={32}
                                     height={32} 
-                                    className="rounded-full flex-shrink-0 border-2 border-border mr-1"
+                                    className="rounded-full flex-shrink-0 border-2 border-border mr-2"
                                     unoptimized
                                 />
                                 <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis font-semibold text-sm">{associate.name}</span>
@@ -133,6 +133,20 @@ export function AppSidebar() {
                     <Link href="/search">
                         <FileSearch />
                         <span>Explore Entries</span>
+                    </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                    asChild
+                    size="default"
+                    tooltip={{ children: "Merchandise" }}
+                    onClick={handleClick}
+                    className="font-medium"
+                    >
+                    <Link href="/merchandise">
+                        <ShoppingBag />
+                        <span>Merchandise</span>
                     </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
