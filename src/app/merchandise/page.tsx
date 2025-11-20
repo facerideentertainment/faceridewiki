@@ -33,7 +33,7 @@ const merchandiseItems = [
     id: 2,
     name: "The 'Big Mike' Signature Hoodie",
     price: "$49.99",
-    imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-3687522943-485ca.firebasestorage.app/o/Merchandise%2FGemini_Generated_Image_c8lp1lc8lp1lc8lp.png?alt=media&token=8c42448f-883a-48a0-9666-09527510d069",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/studio-3687522943-485ca.firebasestorage.app/o/Merchandise%2FGemini_Generated_Image_srtin1srtin1srti.png?alt=media&token=4e1a385a-60b2-4fc5-8f93-d5bd3f36fbff",
     imageHint: "black hoodie",
     sizes: ["S", "M", "L", "XL"],
   },
