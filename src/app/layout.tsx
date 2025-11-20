@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/toaster";
 import { MainLayout } from "@/components/layout/main-layout";
 import { ClientFirebaseProvider } from "@/firebase/client-provider";
+import { CartProvider } from "@/context/cart-context";
 
 const roboto = Roboto({ 
   subsets: ["latin"],
@@ -35,8 +36,10 @@ export default function RootLayout({
         >
             <ClientFirebaseProvider>
               <AuthProvider>
-                <MainLayout>{children}</MainLayout>
-                <Toaster />
+                <CartProvider>
+                  <MainLayout>{children}</MainLayout>
+                  <Toaster />
+                </CartProvider>
               </AuthProvider>
             </ClientFirebaseProvider>
         </ThemeProvider>

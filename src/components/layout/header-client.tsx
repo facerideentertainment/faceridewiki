@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Search, Menu, RefreshCw, LogOut, ImageIcon } from "lucide-react";
+import { Search, Menu, RefreshCw, LogOut, ImageIcon, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ThemeToggle } from "../theme-toggle";
 import { ProfilePictureEditor } from "../profile-picture-editor";
+import { useCart } from "@/context/cart-context";
+import { Badge } from "../ui/badge";
 
 export function AppHeaderClient() {
   const { toggleSidebar, isMobile } = useSidebar();
@@ -27,6 +29,9 @@ export function AppHeaderClient() {
   const searchParams = useSearchParams(); 
   const { user, logout, loading } = useAuth();
   const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
+  const { cartItems } = useCart();
+  
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
@@ -76,9 +81,16 @@ export function AppHeaderClient() {
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <Button variant="ghost" size="icon" onClick={() => window.location.reload()}>
-          <RefreshCw className="h-4 w-4" />
-          <span className="sr-only">Sync</span>
+        <Button variant="ghost" size="icon" asChild className="relative">
+          <Link href="/cart">
+            <ShoppingCart className="h-5 w-5" />
+            {totalItems > 0 && (
+              <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center rounded-full p-0 text-xs">
+                {totalItems}
+              </Badge>
+            )}
+            <span className="sr-only">Shopping Cart</span>
+          </Link>
         </Button>
         {loading ? (
             <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
